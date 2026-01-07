@@ -1,0 +1,22 @@
+{
+  "manifest_version": 1,
+  "name": "麦麦赞我",
+  "version": "1.0.0",
+  "description": "让麦麦能给你点赞",
+  "author": {
+    "name": "鲨鱼",
+    "url": "https://github.com/HyperSharkawa"
+  },
+  "license": "MIT",
+  "host_application": {
+    "min_version": "0.11.5"
+  },
+  "homepage_url": "https://github.com/HyperSharkawa/like_plugin",
+  "repository_url": "https://github.com/HyperSharkawa/like_plugin",
+  "keywords": [
+    "点赞",
+    "互动"
+  ],
+  "default_locale": "zh-CN",
+  "locales_path": "_locales"
+}

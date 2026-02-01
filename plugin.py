@@ -13,7 +13,8 @@ from src.plugin_system import (
     ComponentInfo,
     ConfigField,
     BaseCommand,
-    generator_api
+    generator_api,
+    person_api
 )
 
 logger = get_logger("like_plugin")
@@ -64,7 +65,9 @@ async def send_like(user_id, napcat_host, napcat_port, napcat_token) -> Tuple[bo
                 failed_message = "响应解析失败"
                 break
             if data_json.get("status") != "ok":
-                failed_message = data_json.get("message", "点赞失败")
+                failed_message = data_json.get("message", None)
+                if not failed_message:
+                    failed_message = f"未知错误，响应内容: {text}"
                 break
             # 累加并判断是否达到上限
             count += times_per_request
@@ -89,6 +92,8 @@ class LikeCommand(BaseCommand):
     async def execute(self) -> Tuple[bool, Optional[str], int]:
         """执行时间查询"""
         user_id = self.message.message_info.user_info.user_id
+        person_id = person_api.get_person_id('qq', user_id)
+        person_name = await person_api.get_person_value(person_id, "person_name")
         if not user_id:
             await self.send_text("无法获取用户ID,点赞失败")
             return False, "无法获取用户ID", 1
@@ -99,10 +104,11 @@ class LikeCommand(BaseCommand):
             await self.reply("Napcat服务配置不完整，点赞失败")
             return False, "Napcat服务配置不完整", 1
         success, count, failed_message = await send_like(user_id, napcat_host, napcat_port, napcat_token)
-        if not success:
-            raw_reply = f"点赞失败: {failed_message}"
+        target = f"为 {person_name} " if person_name else ""
+        if success:
+            raw_reply = f"已成功{target}点赞 {count} 次"
         else:
-            raw_reply = f"已成功点赞 {count} 次"
+            raw_reply = f"{target}点赞失败: {failed_message}"
         reply_result = await self.reply(raw_reply)
         return success, f"{raw_reply} {reply_result}", 1
 
